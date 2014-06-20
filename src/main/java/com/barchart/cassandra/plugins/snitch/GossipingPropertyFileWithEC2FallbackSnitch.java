@@ -21,11 +21,15 @@ public class GossipingPropertyFileWithEC2FallbackSnitch implements IEndpointSnit
 
 	IEndpointSnitch delegate;
 
-	GossipingPropertyFileWithEC2FallbackSnitch() throws ConfigurationException, IOException {
+	public GossipingPropertyFileWithEC2FallbackSnitch() throws ConfigurationException {
 		try {
 			delegate = new GossipingPropertyFileSnitch();
 		} catch (final ConfigurationException e) {
-			delegate = new Ec2MultiRegionSnitch();
+			try {
+				delegate = new Ec2MultiRegionSnitch();
+			} catch (final IOException e1) {
+				throw new ConfigurationException("Could not initialize EC2 snitch", e1);
+			}
 		}
 	}
 
